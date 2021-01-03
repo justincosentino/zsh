@@ -56,7 +56,7 @@ dracula_test_git_optional_lock() {
 DRACULA_GIT_NOLOCK=${DRACULA_GIT_NOLOCK:-$(dracula_test_git_optional_lock)}
 # }}}
 
-PROMPT="%m "
+PROMPT=""
 
 # User context segment {{{
 dracula_context() {
@@ -94,11 +94,18 @@ PROMPT+='%F{green}%B$(dracula_time_segment) '
 # Status segment {{{
 # arrow is green if last command was successful, red if not,
 # turns yellow in vi command mode
-PROMPT='%(1V:%F{yellow}:%(?:%F{green}:%F{red}))${DRACULA_ARROW_ICON}'
+PROMPT+='%(1V:%F{yellow}:%(?:%F{green}:%F{red}))${DRACULA_ARROW_ICON}'
 # }}}
 
 # Directory segment {{{
-PROMPT+='%F{blue}%B%c '
+dracula_dir_segment() {
+  if [[ "${PWD}" =~ '/mnt/(disk[0-9]+|user[0-9]*|cache[0-9]*)(/?.*)/(.*)' ]]; then
+    print -r -- "(${match[1]}) ${match[3]}"
+  else
+    print -P "%C"
+  fi
+}
+PROMPT+='%F{blue}%B$(dracula_dir_segment) '
 # }}}
 
 # Async git segment {{{
