@@ -56,7 +56,7 @@ dracula_test_git_optional_lock() {
 DRACULA_GIT_NOLOCK=${DRACULA_GIT_NOLOCK:-$(dracula_test_git_optional_lock)}
 # }}}
 
-PROMPT=""
+PROMPT="%m "
 
 # User context segment {{{
 dracula_context() {
