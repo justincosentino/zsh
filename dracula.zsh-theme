@@ -26,7 +26,7 @@ DRACULA_DISPLAY_TIME=${DRACULA_DISPLAY_TIME:-0}
 DRACULA_DISPLAY_CONTEXT=${DRACULA_DISPLAY_CONTEXT:-0}
 
 # Changes the arrow icon
-DRACULA_ARROW_ICON=${DRACULA_ARROW_ICON:-➜}
+DRACULA_ARROW_ICON=${DRACULA_ARROW_ICON:-➜ }
 
 # function to detect if git has support for --no-optional-locks
 dracula_test_git_optional_lock() {
@@ -56,30 +56,7 @@ dracula_test_git_optional_lock() {
 DRACULA_GIT_NOLOCK=${DRACULA_GIT_NOLOCK:-$(dracula_test_git_optional_lock)}
 # }}}
 
-# Status segment {{{
-# arrow is green if last command was successful, red if not, 
-# turns yellow in vi command mode
-PROMPT='%(1V:%F{yellow}:%(?:%F{green}:%F{red}))${DRACULA_ARROW_ICON}'
-# }}}
-
-# Time segment {{{
-dracula_time_segment() {
-  if (( DRACULA_DISPLAY_TIME )); then
-    if [[ -z "$TIME_FORMAT" ]]; then
-      TIME_FORMAT=" %-H:%M"
-      
-      # check if locale uses AM and PM
-      if ! locale -ck LC_TIME | grep 'am_pm=";"' > /dev/null; then
-        TIME_FORMAT=" %-I:%M%p"
-      fi
-    fi
-
-    print -P "%D{$TIME_FORMAT}"
-  fi
-}
-
-PROMPT+='%F{green}%B$(dracula_time_segment) '
-# }}}
+PROMPT=""
 
 # User context segment {{{
 dracula_context() {
@@ -95,6 +72,31 @@ dracula_context() {
 PROMPT+='%F{magenta}%B$(dracula_context)'
 # }}}
 
+# Time segment {{{
+dracula_time_segment() {
+  if (( DRACULA_DISPLAY_TIME )); then
+    if [[ -z "$TIME_FORMAT" ]]; then
+      TIME_FORMAT=" %-H:%M"
+
+      # check if locale uses AM and PM
+      if ! locale -ck LC_TIME | grep 'am_pm=";"' > /dev/null; then
+        TIME_FORMAT=" %-I:%M%p"
+      fi
+    fi
+
+    print -P "%D{$TIME_FORMAT}"
+  fi
+}
+
+PROMPT+='%F{green}%B$(dracula_time_segment) '
+# }}}
+
+# Status segment {{{
+# arrow is green if last command was successful, red if not,
+# turns yellow in vi command mode
+PROMPT='%(1V:%F{yellow}:%(?:%F{green}:%F{red}))${DRACULA_ARROW_ICON}'
+# }}}
+
 # Directory segment {{{
 PROMPT+='%F{blue}%B%c '
 # }}}
@@ -103,9 +105,9 @@ PROMPT+='%F{blue}%B%c '
 
 dracula_git_status() {
   cd "$1"
-  
+
   local ref branch lockflag
-  
+
   (( DRACULA_GIT_NOLOCK )) && lockflag="--no-optional-locks"
 
   ref=$(=git $lockflag symbolic-ref --quiet HEAD 2>/tmp/git-errors)
@@ -117,13 +119,13 @@ dracula_git_status() {
   esac
 
   branch=${ref#refs/heads/}
-  
+
   if [[ -n $branch ]]; then
     echo -n "${ZSH_THEME_GIT_PROMPT_PREFIX}${branch}"
 
     local git_status icon
     git_status="$(LC_ALL=C =git $lockflag status 2>&1)"
-    
+
     if [[ "$git_status" =~ 'new file:|deleted:|modified:|renamed:|Untracked files:' ]]; then
       echo -n "$ZSH_THEME_GIT_PROMPT_DIRTY"
     else
@@ -173,4 +175,3 @@ zle -N zle-keymap-select
 
 # Ensure effects are reset
 PROMPT+='%f%b'
-
